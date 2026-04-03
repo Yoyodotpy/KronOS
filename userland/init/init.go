@@ -11,7 +11,7 @@ import (
 var shell = "/bin/sh"
 
 func main() {
-	//fmt.Print("\033[H\033[2J")
+	fmt.Print("\033[H\033[2J")
 	fmt.Println("i am alive")
 
 	// Mount file system

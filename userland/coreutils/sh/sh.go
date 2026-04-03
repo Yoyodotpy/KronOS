@@ -36,6 +36,9 @@ func execInput(input string) error {
 		return os.Chdir(args[1])
 	case "exit":
 		os.Exit(0)
+	case "clear":
+		fmt.Print("\033[H\033[2J")
+		return nil
 	}
 	cmd := exec.Command(args[0], args[1:]...)
 	cmd.Stderr = os.Stderr
