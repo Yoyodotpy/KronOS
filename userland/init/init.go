@@ -21,9 +21,10 @@ func main() {
 	os.MkdirAll("/sys", 0755)
 	syscall.Mount("sysfs", "/sys", "sysfs", 0, "")
 
-	os.Setenv("PATH", "/bin:/sbin")
+	os.MkdirAll("/dev", 0755)
+	syscall.Mount("devtmpfs", "/dev", "devtmpfs", 0, "")
 
-	fmt.Println("i am now entering my life loop")
+	os.Setenv("PATH", "/bin:/sbin")
 
 	for {
 		execInput(shell)
@@ -38,4 +39,10 @@ func execInput(input string) error {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	return cmd.Run()
+}
+
+func checkerr(err error) {
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+	}
 }

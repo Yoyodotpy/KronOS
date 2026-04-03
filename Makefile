@@ -4,6 +4,10 @@ INITRAMFS_CPIO = initramfs.cpio
 UTILS_SRC = userland/coreutils
 INIT = userland/init/init.go
 
+GO_FLAGS = CGO_ENABLED=0 GOOS=linux
+LD_FLAGS = -a -ldflags '-extldflags "-static"'
+
+
 .PHONY: all build clean run
 
 # Default target
@@ -11,18 +15,23 @@ all: build run
 
 # 1. Build the Go binary and package the initramfs
 build:
-	@echo "--- Building Go Userland ---"
-	CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-extldflags "-static"' -o $(INITRAMFS_DIR)/init $(INIT)
+	@echo "making init"
+	$(GO_FLAGS) go build -a $(LD_FLAGS) -o $(INITRAMFS_DIR)/init $(INIT)
 
+	@echo "making utils"
 	mkdir -p $(INITRAMFS_DIR)/bin
-	CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-extldflags "-static"' -o $(INITRAMFS_DIR)/bin $(UTILS_SRC)/*.go
+	@for dir in $(shell ls -d $(UTILS_SRC)/*/); do \
+		utilname=$$(basename $$dir); \
+		echo "making $$utilname"; \
+		$(GO_FLAGS) go build -a $(LD_FLAGS) -o $(INITRAMFS_DIR)/bin/$$utilname ./$(UTILS_SRC)/$$utilname; \
+	done
 
 	@echo "--- Packaging Initramfs ---"
 	cd $(INITRAMFS_DIR) && find . -print0 | cpio --null -ov --format=newc > ../$(INITRAMFS_CPIO)
 
 # 2. Launch QEMU with the new window settings
 run:
-	@echo "--- Launching OS ---"
+	@echo "starting qemu"
 	qemu-system-x86_64 \
     	-kernel ./boot/bzImage \
     	-initrd initramfs.cpio \
