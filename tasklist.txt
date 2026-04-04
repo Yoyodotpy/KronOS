@@ -1,0 +1,29 @@
+init -
+ls -
+cp -
+mv -
+rm -
+mkdir -
+cat -
+ln
+sh -
+chmod
+chown
+su (and a user system in general?)
+ps (why cant user just list /proc?)
+df
+mount
+umount
+dmesg
+echo -
+kill
+touch -
+find
+file
+grep
+sed
+awk
+sync
+reboot
+shutdown
+env
