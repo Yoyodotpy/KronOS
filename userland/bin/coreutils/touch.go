@@ -2,14 +2,13 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"time"
 )
 
-func main() {
-	if len(os.Args[1]) > 1 {
-		target, err := os.OpenFile(os.Args[1], os.O_RDONLY|os.O_CREATE, 0666)
+func touch(args []string) {
+	if len(args) >= 1 {
+		target, err := os.OpenFile(args[0], os.O_RDONLY|os.O_CREATE, 0666)
 		checkerr(err)
 		target.Close()
 
@@ -19,12 +18,5 @@ func main() {
 	} else {
 		err := errors.New("you need to give me a name")
 		checkerr(err)
-	}
-}
-
-func checkerr(err error) {
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
 	}
 }

@@ -1,14 +1,19 @@
 package main
 
 import (
-	"fmt"
+	"errors"
 	"os"
 	"path/filepath"
 )
 
-func main() {
-	src := os.Args[1]
-	dest := os.Args[2]
+func mv(args []string) {
+	if len(args) < 2 {
+		err := errors.New("bro i need you to give me something")
+		checkerr(err)
+	}
+
+	src := args[0]
+	dest := args[1]
 
 	info, err := os.Stat(dest)
 	if err == nil && info.IsDir() {
@@ -20,10 +25,4 @@ func main() {
 
 	err = os.Rename(src, dest)
 	checkerr(err)
-}
-
-func checkerr(err error) {
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
 }

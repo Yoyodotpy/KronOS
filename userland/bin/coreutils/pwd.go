@@ -5,10 +5,8 @@ import (
 	"os"
 )
 
-func main() {
+func pwd(_ []string) {
 	dir, err := os.Getwd()
 	fmt.Println(dir)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
+	checkerr(err)
 }

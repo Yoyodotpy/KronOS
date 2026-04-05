@@ -9,6 +9,7 @@ import (
 )
 
 var shell = "/bin/sh"
+var coreutils = "/bin/coreutils"
 
 func main() {
 	fmt.Print("\033[H\033[2J")
@@ -25,6 +26,8 @@ func main() {
 	syscall.Mount("devtmpfs", "/dev", "devtmpfs", 0, "")
 
 	os.Setenv("PATH", "/bin:/sbin")
+
+	execInput("/bin/coreutils")
 
 	for {
 		execInput(shell)
@@ -44,5 +47,6 @@ func execInput(input string) error {
 func checkerr(err error) {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 }

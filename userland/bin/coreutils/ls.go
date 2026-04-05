@@ -6,11 +6,10 @@ import (
 	"strings"
 )
 
-func main() {
-	var dir string
+func ls(args []string) {
 	dir, err := os.Getwd()
-	if len(os.Args) > 1 {
-		dir = os.Args[1]
+	if len(args) >= 1 {
+		dir = args[0]
 	}
 	checkerr(err)
 	serveDir(dir)
@@ -27,10 +26,4 @@ func serveDir(dir string) {
 	}
 	dirlist := builder.String()
 	fmt.Println(dirlist)
-}
-
-func checkerr(err error) {
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
 }

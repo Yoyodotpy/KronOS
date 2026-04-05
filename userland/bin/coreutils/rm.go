@@ -2,14 +2,13 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"os"
 )
 
-func main() {
+func rm(args []string) {
 	var err []error
-	if len(os.Args) > 1 {
-		for _, i := range os.Args[1:] {
+	if len(args) >= 1 {
+		for _, i := range args {
 			e := os.Remove(i)
 			if e != nil {
 				err = append(err, e)
@@ -20,11 +19,5 @@ func main() {
 	}
 	for _, i := range err {
 		checkerr(i)
-	}
-}
-
-func checkerr(err error) {
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
 	}
 }

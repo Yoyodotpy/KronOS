@@ -1,8 +1,8 @@
 KERNEL_BZIMAGE = boot/bzImage
 INITRAMFS_DIR = initramfs
 INITRAMFS_CPIO = initramfs.cpio
-UTILS_SRC = userland/coreutils
-INIT = userland/init/init.go
+UTILS_SRC = userland/bin
+INIT = ./userland/init
 
 GO_FLAGS = CGO_ENABLED=0 GOOS=linux
 LD_FLAGS = -a -ldflags '-extldflags "-static"'

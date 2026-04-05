@@ -2,14 +2,13 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"strings"
 )
 
-func main() {
-	if len(os.Args) > 1 {
+func echo(args []string) {
+	if len(args) >= 1 {
 		var builder strings.Builder
-		for _, arg := range os.Args[1:] {
+		for _, arg := range args {
 			builder.WriteString(arg + " ")
 		}
 		echoed := builder.String()

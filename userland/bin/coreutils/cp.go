@@ -1,14 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"os"
 )
 
-func main() {
-	src := os.Args[1]
-	dest := os.Args[2]
+func cp(args []string) {
+	src := args[0]
+	dest := args[1]
 
 	file, err := os.Open(src)
 	checkerr(err)
@@ -20,10 +19,4 @@ func main() {
 
 	_, err = io.Copy(target, file)
 	checkerr(err)
-}
-
-func checkerr(err error) {
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
 }

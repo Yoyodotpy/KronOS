@@ -5,11 +5,10 @@ mv -
 rm -
 mkdir -
 cat -
-ln
+ln -
 sh -
-chmod
-chown
-su (and a user system in general?)
+reboot
+shutdown
 ps (why cant user just list /proc?)
 df
 mount
@@ -24,6 +23,14 @@ grep
 sed
 awk
 sync
-reboot
-shutdown
 env
+lua
+
+
+IF YOU FEEL LIKE ADDING USERS:
+chmod
+useradd
+passwd
+login
+chown
+su (and a user system in general?)
