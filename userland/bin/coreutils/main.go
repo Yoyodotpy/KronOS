@@ -26,6 +26,9 @@ func init() {
 	cmds["rm"] = rm
 	cmds["shutdown"] = shutdown
 	cmds["touch"] = touch
+	cmds["mount"] = mount
+	cmds["umount"] = umount
+	cmds["sync"] = sync
 }
 
 func main() {

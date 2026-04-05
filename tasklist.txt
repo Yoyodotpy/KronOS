@@ -7,12 +7,12 @@ mkdir -
 cat -
 ln -
 sh -
-reboot
-shutdown
+reboot -
+shutdown -
 ps (why cant user just list /proc?)
 df
-mount
-umount
+mount -
+umount -
 dmesg
 echo -
 kill

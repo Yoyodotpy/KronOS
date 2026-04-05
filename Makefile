@@ -35,6 +35,7 @@ run:
 	qemu-system-x86_64 \
     	-kernel ./boot/bzImage \
     	-initrd initramfs.cpio \
+		-drive file=./boot/disk.img,format=raw,if=ide \
     	-m 512M \
     	-append "console=tty1"
 

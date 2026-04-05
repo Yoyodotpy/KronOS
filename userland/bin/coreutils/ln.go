@@ -2,14 +2,15 @@ package main
 
 import (
 	"errors"
-	"flag"
 	"os"
 	"path/filepath"
+
+	flag "github.com/spf13/pflag"
 )
 
 func ln(args []string) {
-	symlink := flag.Bool("s", false, "create symlink instead of hard link")
-	force := flag.Bool("f", false, "remove dest file")
+	symlink := flag.BoolP("symbolic", "s", false, "create symlink instead of hard link")
+	force := flag.BoolP("force", "f", false, "remove dest file")
 
 	flag.Parse()
 
