@@ -29,9 +29,20 @@ func main() {
 func execInput(input string, vared bool) (string, error) {
 	input = strings.TrimSuffix(input, "\n")
 	args := strings.Split(input, " ")
+	var stdout string
+
+	for i, arg := range args {
+		if arg == ">" {
+			stdout = args[i+1]
+			args = append(args[:i], args[i+2:]...)
+			break
+		}
+	}
+
 	for i := range args {
 		args[i] = getval(args[i])
 	}
+
 	switch args[0] {
 	case "cd":
 		if len(args) < 2 {
@@ -44,16 +55,29 @@ func execInput(input string, vared bool) (string, error) {
 		fmt.Print("\033[H\033[2J")
 		return "", nil
 	}
+
 	cmd := exec.Command(args[0], args[1:]...)
 	var output []byte
 	var err error
+
 	if vared {
 		output, err = cmd.CombinedOutput()
 		return string(output), err
-	} else {
-		cmd.Stderr = os.Stderr
-		cmd.Stdout = os.Stdout
-		cmd.Stdin = os.Stdin
-		return "", cmd.Run()
 	}
+
+	if stdout != "" {
+		f, err := os.Create(stdout)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		defer f.Close()
+		cmd.Stdout = f
+	} else {
+		cmd.Stdout = os.Stdout
+	}
+
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+	return "", cmd.Run()
 }

@@ -29,6 +29,8 @@ func main() {
 
 	execInput("/bin/coreutils")
 
+	syscall.Syscall(syscall.SYS_SYSLOG, 8, 0, uintptr(1))
+
 	for {
 		execInput(shell)
 	}
@@ -41,6 +43,11 @@ func execInput(input string) error {
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		Setsid:  true,
+		Setctty: true,
+		Ctty:    0,
+	}
 	return cmd.Run()
 }
 

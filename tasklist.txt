@@ -13,18 +13,19 @@ ps (why cant user just list /proc?)
 df
 mount -
 umount -
-dmesg
+dmesg -
 echo -
-kill
+kill -
 touch -
 find
+nano-like text editor
 file
 grep
 sed
 awk
-sync
+sync -
 env
-lua
+lua - (sort of, static binary included)
 
 
 IF YOU FEEL LIKE ADDING USERS:

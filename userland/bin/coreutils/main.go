@@ -14,21 +14,24 @@ var utildir = "/bin/coreutils"
 
 func init() {
 	cmds["coreutils"] = coreutils
+	cmds["cat"] = cat
 	cmds["cp"] = cp
 	cmds["echo"] = echo
+	cmds["find"] = find
+	cmds["kill"] = kill
 	cmds["ln"] = ln
 	cmds["ls"] = ls
 	cmds["mkdir"] = mkdir
+	cmds["mount"] = mount
 	cmds["mv"] = mv
-	cmds["cat"] = cat
 	cmds["pwd"] = pwd
 	cmds["reboot"] = reboot
 	cmds["rm"] = rm
 	cmds["shutdown"] = shutdown
-	cmds["touch"] = touch
-	cmds["mount"] = mount
-	cmds["umount"] = umount
 	cmds["sync"] = sync
+	cmds["touch"] = touch
+	cmds["umount"] = umount
+	cmds["dmesg"] = dmesg
 }
 
 func main() {
