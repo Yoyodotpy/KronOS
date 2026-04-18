@@ -25,6 +25,10 @@ func main() {
 	os.MkdirAll("/dev", 0755)
 	syscall.Mount("devtmpfs", "/dev", "devtmpfs", 0, "")
 
+	os.MkdirAll("/dev/pts", 0755)
+	syscall.Mount("devpts", "/dev/pts", "devpts", 0, "newinstance,ptmxmode=0666,mode=620")
+	os.Symlink("/dev/pts/ptmx", "/dev/ptmx")
+
 	os.Setenv("PATH", "/bin:/sbin")
 
 	execInput("/bin/coreutils")
