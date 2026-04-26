@@ -39,7 +39,7 @@ run:
     	-drive file=./boot/disk.img,format=raw,if=ide \
     	-vga std \
     	-m 512M \
-    	-append "console=tty1 video=1024x768-32 rdinit=/init"
+    	-append "console=tty1 video=1024x768-16 rdinit=/init"
 
 # 3. Clean up build artifacts
 clean:

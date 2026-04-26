@@ -53,8 +53,6 @@ func edit(args []string) {
 		checkerr(errors.New("need filename"))
 	}
 
-	curfile = append(curfile, "")
-
 	screen, err = tcell.NewScreen()
 	checkerr(err)
 
@@ -103,10 +101,16 @@ func edit(args []string) {
 				save(args[0])
 
 			case tcell.KeyEnter:
-				curfile = append(curfile, "")
-				curline = ""
-				cursor.X = 0
+				before := curline[:cursor.X]
+				after := curline[cursor.X:]
+
+				curfile[cursor.Y] = before
+				curfile = append(curfile[:cursor.Y+1], append([]string{after}, curfile[cursor.Y+1:]...)...)
+
 				cursor.Y += 1
+				cursor.X = 0
+
+				curline = curfile[cursor.Y]
 
 			case tcell.KeyBackspace, tcell.KeyBackspace2:
 				if cursor.X > 0 {
@@ -161,8 +165,16 @@ func edit(args []string) {
 			default:
 				if ev.Str() != "" {
 					modable := []rune(curline)
-					before := modable[:cursor.X]
-					after := modable[cursor.X:]
+
+					var before []rune
+					var after []rune
+					if cursor.X >= len(modable) {
+						before = modable[:cursor.X]
+						after = modable[cursor.X:]
+					} else {
+						before = modable[:cursor.X]
+						after = modable[cursor.X+1:]
+					}
 
 					newline := string(before) + ev.Str() + string(after)
 					curline = newline

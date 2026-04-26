@@ -18,18 +18,18 @@ echo -
 kill -
 touch -
 find
-nano-like text editor
+nano-like text editor -
 file
 grep
 sed
 awk
 sync -
 env
-lua - (sort of, static binary included)
+lua -
 
 
 IF YOU FEEL LIKE ADDING USERS:
-chmod
+chmod -
 useradd
 passwd
 login

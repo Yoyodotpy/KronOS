@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -11,8 +12,20 @@ import (
 
 func sh(args []string) {
 	if len(args) > 0 {
-		lua_cmd(args)
-		return
+		file, err := os.Open(args[0])
+		checkerr(err)
+		defer file.Close()
+
+		text, err := io.ReadAll(file)
+		checkerr(err)
+		textstr := string(text)
+
+		cmds := strings.Split(textstr, "\n")
+
+		for _, cmd := range cmds {
+			execInput(cmd, false)
+		}
+
 	}
 	reader := bufio.NewReader(os.Stdin)
 	for {

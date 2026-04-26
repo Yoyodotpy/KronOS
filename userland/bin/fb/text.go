@@ -11,29 +11,36 @@ import (
 )
 
 var ansiRegex = regexp.MustCompile(`[\x1b\x9b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]`)
-
-type FBWrapper struct{}
-
-func (f *FBWrapper) ColorModel() color.Model { return color.RGBAModel }
-func (f *FBWrapper) Bounds() image.Rectangle { return image.Rect(0, 0, 2000, 2000) }
-func (f *FBWrapper) At(x, y int) color.Color {
-	return color.RGBA{}
-}
-func (f *FBWrapper) Set(x, y int, c color.Color) {
-	r, g, b, _ := c.RGBA()
-	drawpix(x, y, int(r>>8), int(g>>8), int(b>>8))
-}
-
-var fbwrapper = &FBWrapper{}
+var fontletters []*image.RGBA
 
 func drawtext(text string, x int, y int, clr color.Color) {
 	drawer := &font.Drawer{
-		Dst:  fbwrapper,
 		Src:  image.NewUniform(clr),
 		Face: terminalface,
-		Dot:  fixed.P(x, y+24),
 	}
+
+	advance := drawer.MeasureString(text)
+	width := advance.Ceil()
+	height := 32
+
+	if width <= 0 {
+		return
+	}
+
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+	drawer.Dst = img
+
+	drawer.Dot = fixed.P(0, 24)
 	drawer.DrawString(text)
+
+	for ty := range height {
+		for tx := range width {
+			r, g, b, a := img.At(tx, ty).RGBA()
+			if a > 0 {
+				drawpix(x+tx, y+ty, int(r>>8), int(g>>8), int(b>>8))
+			}
+		}
+	}
 }
 
 func drawmultiline(lines []string, clr color.Color) {
@@ -46,7 +53,7 @@ func drawmultiline(lines []string, clr color.Color) {
 
 func cleanstring(str string) string {
 	clean := ansiRegex.ReplaceAllString(str, "")
-	clean = strings.ReplaceAll(clean, "\t", "    ")
+	clean = strings.ReplaceAll(clean, "\t", "   ")
 	clean = strings.ReplaceAll(clean, "\r", "")
 	return clean
 }
@@ -57,4 +64,29 @@ func striplines(s string, maxlines int) string {
 		return strings.Join(lines[len(lines)-maxlines:], "\n")
 	}
 	return s
+}
+
+func loadfont(clr color.Color) {
+	var let = "a"
+
+	drawer := &font.Drawer{
+		Src:  image.NewUniform(clr),
+		Face: terminalface,
+	}
+
+	advance := drawer.MeasureString(let)
+	width := advance.Ceil()
+	height := 32
+
+	if width <= 0 {
+		return
+	}
+
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+	drawer.Dst = img
+
+	drawer.Dot = fixed.P(0, 24)
+	drawer.DrawString(let)
+
+	fontletters = append(fontletters, img)
 }
