@@ -20,7 +20,7 @@ build:
 
 	@echo "making utils"
 	mkdir -p $(INITRAMFS_DIR)/bin
-	cp -r boot/bin $(INITRAMFS_DIR)
+	cp -r boot/root/* $(INITRAMFS_DIR)
 	@for dir in $(shell ls -d $(UTILS_SRC)/*/); do \
 		utilname=$$(basename $$dir); \
 		echo "making $$utilname"; \
@@ -37,8 +37,10 @@ run:
     	-kernel ./boot/bzImage \
     	-initrd initramfs.cpio \
     	-drive file=./boot/disk.img,format=raw,if=ide \
+        -cpu host \
+        -enable-kvm \
     	-vga std \
-    	-m 512M \
+    	-m 8G \
     	-append "console=tty1 video=1024x768-16 rdinit=/init"
 
 # 3. Clean up build artifacts

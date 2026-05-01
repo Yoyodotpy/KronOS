@@ -14,10 +14,12 @@ require (
 )
 
 require (
+	github.com/AndreRenaud/gore v0.0.0-20260413081714-8cf61e239e98 // indirect
 	github.com/gdamore/encoding v1.0.1 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
-	github.com/hinshun/vt10x v0.0.0-20220301184237-5011da428d02 // indirect
+	github.com/holoplot/go-evdev v0.0.0-20250804134636-ab1d56a1fe83 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.0 // indirect
+	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	golang.org/x/sys v0.43.0 // indirect
 	golang.org/x/text v0.36.0 // indirect

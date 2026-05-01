@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image"
 	"image/draw"
-	"io"
 	"os"
 	"time"
 
@@ -19,11 +18,6 @@ func main() {
 	defer fb.Close()
 
 	screen = gg.NewContext(fb.Bounds().Dx(), fb.Bounds().Dy())
-
-	go func() {
-		_, err := io.Copy(vterm, os.Stdin)
-		checkerr(err)
-	}()
 
 	for {
 
