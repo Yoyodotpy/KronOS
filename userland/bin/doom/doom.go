@@ -1,14 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"image"
 	"image/draw"
+	"net/rpc"
+	"os"
 	"time"
 
 	"github.com/d21d3q/framebuffer"
 	"github.com/holoplot/go-evdev"
-	"github.com/nfnt/resize"
 )
 
 type fbuffer struct {
@@ -17,13 +17,15 @@ type fbuffer struct {
 	kbchan chan *evdev.InputEvent
 }
 
+var PID int
+var client *rpc.Client
+
 func main() {
 	SetVirtualFileSystem(embeddedwad)
 
-	fmt.Print("\033[?25l")
-	defer fmt.Print("\033[?25h")
-
-	defer fmt.Print("\033[H\033[2J")
+	var err error
+	client, err = rpc.Dial("unix", "/tmp/wm.sock")
+	checkerr(err)
 
 	fb0, err := framebuffer.Open("/dev/fb0")
 	checkerr(err)
@@ -40,6 +42,8 @@ func main() {
 
 	eventChan := make(chan *evdev.InputEvent, 100)
 
+	PID = os.Getpid()
+
 	go func() {
 		for {
 			event, err := kb0.ReadOne()
@@ -55,12 +59,25 @@ func main() {
 		kbchan: eventChan,
 		db:     image.NewRGBA(fb0.Bounds()),
 	}
+
+	var reply WindowReply
+	defer client.Call("Winman.CloseWin", 1, &reply)
+
 	Run(driver)
 }
 
 func (f *fbuffer) DrawFrame(img *image.RGBA) {
-	target := resize.Resize(uint(f.fb.Bounds().Dx()), uint(f.fb.Bounds().Dy()), img, resize.NearestNeighbor)
-	draw.Draw(f.fb, f.fb.Bounds(), target, image.Point{0, 0}, draw.Src)
+	info := &Winfo{
+		ID:     PID,
+		Width:  img.Bounds().Dx(),
+		Height: img.Bounds().Dy(),
+		Stride: img.Stride,
+		Pixels: img.Pix,
+	}
+
+	var reply WindowReply
+	err := client.Call("Winman.CreateWin", info, &reply)
+	checkerr(err)
 	time.Sleep(time.Microsecond * 100)
 }
 

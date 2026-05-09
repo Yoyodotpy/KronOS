@@ -20,7 +20,7 @@ build:
 
 	@echo "making utils"
 	mkdir -p $(INITRAMFS_DIR)/bin
-	cp -r boot/root/* $(INITRAMFS_DIR)
+	cp -r boot/root/. $(INITRAMFS_DIR)
 	@for dir in $(shell ls -d $(UTILS_SRC)/*/); do \
 		utilname=$$(basename $$dir); \
 		echo "making $$utilname"; \
@@ -33,15 +33,15 @@ build:
 # 2. Launch QEMU with the new window settings
 run:
 	@echo "starting qemu"
-	qemu-system-x86_64 \
-    	-kernel ./boot/bzImage \
-    	-initrd initramfs.cpio \
-    	-drive file=./boot/disk.img,format=raw,if=ide \
-        -cpu host \
-        -enable-kvm \
-    	-vga std \
-    	-m 8G \
-    	-append "console=tty1 video=1024x768-16 rdinit=/init"
+	sudo qemu-system-x86_64 \
+		-kernel ./boot/bzImage \
+		-initrd initramfs.cpio \
+		-drive file=./boot/disk.img,format=raw,if=ide \
+		-cpu host \
+		-enable-kvm \
+		-vga std \
+		-m 8G \
+		-append "console=tty1 video=1024x768-32 rdinit=/init"
 
 # 3. Clean up build artifacts
 clean:
