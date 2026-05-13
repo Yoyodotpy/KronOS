@@ -2,7 +2,6 @@ package main
 
 import (
 	"crypto/sha1"
-	"embed"
 	"fmt"
 	"hash"
 	"image"
@@ -20,9 +19,6 @@ import (
 	"time"
 	"unsafe"
 )
-
-//go:embed doom.wad
-var embeddedwad embed.FS
 
 var vfs fs.FS
 

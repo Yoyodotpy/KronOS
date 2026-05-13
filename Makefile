@@ -33,7 +33,7 @@ build:
 # 2. Launch QEMU with the new window settings
 run:
 	@echo "starting qemu"
-	sudo qemu-system-x86_64 \
+	qemu-system-x86_64 \
 		-kernel ./boot/bzImage \
 		-initrd initramfs.cpio \
 		-drive file=./boot/disk.img,format=raw,if=ide \
@@ -41,6 +41,7 @@ run:
 		-enable-kvm \
 		-vga std \
 		-m 8G \
+		-display sdl \
 		-append "console=tty1 video=1024x768-32 rdinit=/init"
 
 # 3. Clean up build artifacts

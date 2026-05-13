@@ -7,7 +7,7 @@ import (
 
 type Winman struct{}
 
-var windows = make(map[int]window)
+var windows = make(map[int]*window)
 var deadwindows = make(map[int]bool)
 var windowsneedrefresh bool
 var cursorsprite image.Image
@@ -24,11 +24,20 @@ func (w *Winman) CreateWin(info *Winfo, reply *WindowReply) error {
 	}
 
 	if win, exists := windows[info.ID]; exists {
-		copy(win.img.Pix, info.Pixels)
-		win.title = info.Title
+		if win.img.Bounds().Dx() != info.Width || win.img.Bounds().Dy() != info.Height || win.img.Stride != info.Stride {
+			rect := image.Rect(0, 0, info.Width, info.Height)
+			tempimg := image.RGBA{
+				Pix:    info.Pixels,
+				Stride: info.Stride,
+				Rect:   rect,
+			}
+			win.img = tempimg
+		} else {
+			copy(win.img.Pix, info.Pixels)
+		}
 	} else {
 		rect := image.Rect(0, 0, info.Width, info.Height)
-		windows[info.ID] = window{
+		windows[info.ID] = &window{
 			ID: info.ID,
 			X:  100,
 			Y:  100,
@@ -37,20 +46,38 @@ func (w *Winman) CreateWin(info *Winfo, reply *WindowReply) error {
 				Stride: info.Stride,
 				Rect:   rect,
 			},
-			title: info.Title,
+			focused: true,
 		}
 	}
 	windowsneedrefresh = true
 	reply.Success = true
+	reply.Focused = windows[info.ID].focused
 	return nil
 }
 
 func (w *Winman) CloseWin(ID int, reply *bool) error {
-	delete(windows, ID)
-	windowsneedrefresh = true
-	if reply != nil {
-		*reply = true
+	windows[ID].close()
+	return nil
+}
+
+func (w *Winman) SetTitle(title Title, reply *WindowReply) error {
+	_, exists := windows[title.ID]
+	if !exists {
+		windows[title.ID] = &window{
+			ID:    title.ID,
+			X:     100,
+			Y:     100,
+			title: title.Title,
+			img: image.RGBA{
+				Pix:    make([]byte, 10*10*4),
+				Stride: 10 * 4,
+				Rect:   image.Rect(0, 0, 10, 10),
+			},
+		}
 	}
+	windows[title.ID].title = title.Title
+	windowsneedrefresh = true
+	reply.Success = true
 	return nil
 }
 
@@ -58,19 +85,40 @@ func drawwindows(fb draw.Image) {
 	screenbuffer.SetRGB(0.1, 0.1, 0.1)
 	screenbuffer.Clear()
 
+	var curwin window
+
 	for _, window := range windows {
+		if !window.focused {
+			screenbuffer.SetRGB(0.3, 0.3, 0.3)
+			screenbuffer.DrawRectangle(float64(window.X), float64(window.Y-barheight), float64(window.img.Bounds().Dx()), float64(barheight))
+			screenbuffer.Fill()
+			screenbuffer.SetRGB(0.7, 0, 0)
+			screenbuffer.DrawRectangle(float64(window.X), float64(window.Y-barheight), float64(barheight), float64(barheight))
+			screenbuffer.Fill()
+			screenbuffer.SetRGB(1, 1, 1)
+			screenbuffer.DrawString(window.title, float64(window.X+barheight+1), float64(window.Y-1))
+			screenbuffer.Fill()
+			screenbuffer.SetRGB(0.1, 0.1, 0.1)
 
-		screenbuffer.SetRGB(0, 0.7, 0)
-		screenbuffer.DrawRectangle(float64(window.X), float64(window.Y-barheight), float64(window.img.Bounds().Dx()), float64(barheight))
-		screenbuffer.Fill()
-		screenbuffer.SetRGB(0.7, 0, 0)
-		screenbuffer.DrawRectangle(float64(window.X), float64(window.Y-barheight), float64(barheight), float64(barheight))
-		screenbuffer.Fill()
-		screenbuffer.SetRGB(0.1, 0.1, 0.1)
-
-		var frame image.Image = &window.img
-		screenbuffer.DrawImageAnchored(frame, window.X, window.Y, 0, 0)
+			var frame image.Image = &window.img
+			screenbuffer.DrawImageAnchored(frame, window.X, window.Y, 0, 0)
+		} else {
+			curwin = *window
+		}
 	}
+
+	screenbuffer.SetRGB(0, 0.7, 0)
+	screenbuffer.DrawRectangle(float64(curwin.X), float64(curwin.Y-barheight), float64(curwin.img.Bounds().Dx()), float64(barheight))
+	screenbuffer.Fill()
+	screenbuffer.SetRGB(0.7, 0, 0)
+	screenbuffer.DrawRectangle(float64(curwin.X), float64(curwin.Y-barheight), float64(barheight), float64(barheight))
+	screenbuffer.Fill()
+	screenbuffer.SetRGB(1, 1, 1)
+	screenbuffer.DrawString(curwin.title, float64(curwin.X+barheight+1), float64(curwin.Y-1))
+	screenbuffer.Fill()
+	screenbuffer.SetRGB(0.1, 0.1, 0.1)
+	var frame image.Image = &curwin.img
+	screenbuffer.DrawImageAnchored(frame, curwin.X, curwin.Y, 0, 0)
 
 	screenbuffer.DrawImageAnchored(cursorsprite, cursor.x, cursor.y, 0, 0)
 
@@ -86,6 +134,7 @@ func interactwindow() {
 			if id != -1 {
 				activewindow = id
 				win := windows[activewindow]
+				win.focuse()
 				dragoffsetx = cursor.x - win.X
 				dragoffsety = cursor.y - win.Y
 				if x {

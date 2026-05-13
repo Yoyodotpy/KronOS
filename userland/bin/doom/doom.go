@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"image"
 	"image/draw"
 	"net/rpc"
@@ -12,10 +13,14 @@ import (
 )
 
 type fbuffer struct {
-	fb     *framebuffer.Image
-	db     draw.Image
-	kbchan chan *evdev.InputEvent
+	fb      *framebuffer.Image
+	db      draw.Image
+	kbchan  chan *evdev.InputEvent
+	focused bool
 }
+
+//go:embed doom.wad
+var embeddedwad embed.FS
 
 var PID int
 var client *rpc.Client
@@ -61,7 +66,7 @@ func main() {
 	}
 
 	var reply WindowReply
-	defer client.Call("Winman.CloseWin", 1, &reply)
+	defer client.Call("Winman.CloseWin", PID, &reply)
 
 	Run(driver)
 }
@@ -78,10 +83,30 @@ func (f *fbuffer) DrawFrame(img *image.RGBA) {
 	var reply WindowReply
 	err := client.Call("Winman.CreateWin", info, &reply)
 	checkerr(err)
+	f.focused = reply.Focused
+
 	time.Sleep(time.Microsecond * 100)
 }
 
+func (f *fbuffer) SetTitle(title string) {
+	info := &Title{
+		Title: title,
+		ID:    PID,
+	}
+	var reply WindowReply
+	err := client.Call("Winman.SetTitle", info, &reply)
+	checkerr(err)
+}
+
 func (f *fbuffer) GetEvent(ev *DoomEvent) bool {
+	if !f.focused {
+		select {
+		case <-f.kbchan:
+		default:
+		}
+		return false
+	}
+
 	select {
 	case event := <-f.kbchan:
 		if event.Type == evdev.EV_KEY {
@@ -153,8 +178,6 @@ func translate(key evdev.EvCode) uint8 {
 func (f *fbuffer) CacheSound(name string, data []byte) {}
 
 func (f *fbuffer) PlaySound(name string, channel, vol, sep int) {}
-
-func (f *fbuffer) SetTitle(title string) {}
 
 func checkerr(err error) {
 	if err != nil {

@@ -57,6 +57,7 @@ func main() {
 	}()
 
 	go spawnclient("/bin/doom")
+	go spawnclient("/bin/badapple")
 	go mousemove(mouseDev, fb.Bounds().Dx(), fb.Bounds().Dy())
 
 	screenbuffer.SetRGB(0.1, 0.1, 0.1)
