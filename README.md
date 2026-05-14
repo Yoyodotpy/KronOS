@@ -1,5 +1,9 @@
 Custom Operating System based on the Linux Kernel, everything else written from scratch
 
+### recommeneded vm specs:
+RAM:  512
+VM: qemu-desktop-x86_64
+
 ### HOW TO RUN THE RELEASE IMG:
 qemu-system-x86_64 -m 512M -bios /path/to/OVMF.fd -drive format=raw,file=kronos.img -cpu host -enable-kvm
 
